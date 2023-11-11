@@ -1,4 +1,6 @@
-FROM david-mapnik:latest
+ARG BASE_CONTAINER
+FROM ${BASE_CONTAINER}
+
 
 RUN apt-get install -y libboost-all-dev
 

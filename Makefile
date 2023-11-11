@@ -1,21 +1,35 @@
+include .env
+export
 
-.PHONY: all
 
-all: postgres conda
+build-all:
+	make build-conda
+	make build-jupyter
+	make build-pg
+	make build-mapnik
+	make build-python-mapnik
 
-test:
-	echo "test"
+build-pg:
+	docker build -t $(POSTGRES) -f ./postgres/Dockerfile ./postgres
 
-postgres:
-	docker build -t davidul-postgres -f ./postgres/Dockerfile ./postgres
+build-mapnik:
+	docker build -t $(MAPNIK) --build-arg="BASE_CONTAINER=$(POSTGRES)" -f ./mapnik/Dockerfile ./mapnik
 
-conda:
-	docker build -t davidul-conda -f ./conda/Dockerfile ./conda
+build-python-mapnik:
+	docker build -t $(PYTHON_MAPNIK) --build-arg="BASE_CONTAINER=$(MAPNIK)" -f ./python-mapnik/Dockerfile ./python-mapnik
+
+build-conda:
+	docker build -t $(CONDA) -f ./conda/Dockerfile ./conda
+
+build-jupyter:
+	docker build -t $(JUPYTER) -f ./conda/jupyter/Dockerfile ./conda/jupyter
+
+
 
 rmi-postgres:
-	docker rmi davidul-python-mapnik
-	docker rmi davidul-mapnik
-	docker rmi davidul-postgres
+	docker rmi $(PYTHON_MAPNIK)
+	docker rmi $(MAPNIK)
+	docker rmi $(POSTGRES)
 
 rmi-conda:
 	docker rm davidul-conda
